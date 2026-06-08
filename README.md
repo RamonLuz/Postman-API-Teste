@@ -1,2 +1,2 @@
-# Postman-API-Teste
-Validacao APIs Projeto Spring Boot
+# Postman API Tests
+Validação das APIs do projeto Spring Boot.
