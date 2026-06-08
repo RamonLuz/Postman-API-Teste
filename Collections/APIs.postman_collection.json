@@ -1,0 +1,80 @@
+{
+  "info": {
+    "_postman_id": "9b9ddcea-7f51-4f9b-8479-7c4c468d9a50",
+    "name": "APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "13424244",
+    "_collection_link": "https://go.postman.co/collection/13424244-9b9ddcea-7f51-4f9b-8479-7c4c468d9a50?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Contrato da resposta está correto\", function () {\r",
+                  "    pm.expect(response.status).to.eql(\"UP\");\r",
+                  "    pm.expect(response.application).to.eql(\"livrotech\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Tempo de resposta\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Validação de contrato JSON Schema\", function () {\r",
+                  "    const schema = {\r",
+                  "        type: \"object\",\r",
+                  "        required: [\"status\", \"application\"],\r",
+                  "        properties: {\r",
+                  "            status: {\r",
+                  "                type: \"string\",\r",
+                  "                enum: [\"UP\"]\r",
+                  "            },\r",
+                  "            application: {\r",
+                  "                type: \"string\",\r",
+                  "                enum: [\"livrotech\"]\r",
+                  "            }\r",
+                  "        },\r",
+                  "        additionalProperties: false\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.response.to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/health",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
