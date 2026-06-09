@@ -75,6 +75,420 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Sucesso",
+          "item": [
+            {
+              "name": "Book",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "pm.environment.set(\"bookId\", response.id);\r",
+                      "\r",
+                      "pm.test(\"Status code 201\", function () {\r",
+                      "    pm.response.to.have.status(201);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é JSON\", () => {\r",
+                      "    pm.expect(\r",
+                      "        pm.response.headers.get(\"Content-Type\")\r",
+                      "    ).to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato da resposta está correto\", function () {\r",
+                      "    pm.expect(response.titulo).to.eql(pm.environment.get(\"titulo\"));\r",
+                      "    pm.expect(response.autor).to.eql(pm.environment.get(\"nome\"));\r",
+                      "    pm.expect(response.preco).to.eql(parseFloat(pm.environment.get(\"preço\")));\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Tempo de resposta\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Validar contrato da resposta\", function () {\r",
+                      "    const schema = {\r",
+                      "    type: \"object\",\r",
+                      "    required: [\"id\", \"titulo\", \"autor\", \"preco\"],\r",
+                      "    properties: {\r",
+                      "        id: {\r",
+                      "            type: \"integer\"\r",
+                      "        },\r",
+                      "        titulo: {\r",
+                      "            type: \"string\"\r",
+                      "        },\r",
+                      "        autor: {\r",
+                      "            type: \"string\"\r",
+                      "        },\r",
+                      "        preco: {\r",
+                      "            type: \"number\"\r",
+                      "        }\r",
+                      "    }\r",
+                      "};\r",
+                      "\r",
+                      "    pm.response.to.have.jsonSchema(schema);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const titulo = pm.environment.replaceIn(\"{{$randomProductName}}\");\r",
+                      "const nome = pm.environment.replaceIn(\"{{$randomFullName}}\");\r",
+                      "const preço = pm.environment.replaceIn(\"{{$randomPrice}}\");\r",
+                      "\r",
+                      "pm.environment.set(\"titulo\", titulo);\r",
+                      "pm.environment.set(\"nome\", nome);\r",
+                      "pm.environment.set(\"preço\", preço);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"{{titulo}}\",\r\n  \"autor\": \"{{nome}}\",\r\n  \"preco\": {{preço}}\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/Books",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "Books"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Book",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Tempo de resposta\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(35);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato da resposta está correto\", function () {\r",
+                      "    for(x=0;x<response.Length;x++){\r",
+                      "        pm.expect(response[x]).to.eql(pm.environment.get(\"titulo\"));\r",
+                      "        pm.expect(response[x].autor).to.eql(pm.environment.get(\"nome\"));\r",
+                      "        pm.expect(response[x].preco).to.eql(parseFloat(pm.environment.get(\"preço\")));\r",
+                      "    }\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato com regras de negócio\", () => {\r",
+                      "    const schema = {\r",
+                      "        type: \"array\",\r",
+                      "        items: {\r",
+                      "            type: \"object\",\r",
+                      "            required: [\"id\", \"titulo\", \"autor\", \"preco\"],\r",
+                      "            properties: {\r",
+                      "                id: {\r",
+                      "                    type: \"integer\",\r",
+                      "                    minimum: 1\r",
+                      "                },\r",
+                      "                titulo: {\r",
+                      "                    type: \"string\",\r",
+                      "                    minLength: 1\r",
+                      "                },\r",
+                      "                autor: {\r",
+                      "                    type: \"string\",\r",
+                      "                    minLength: 1\r",
+                      "                },\r",
+                      "                preco: {\r",
+                      "                    type: \"number\",\r",
+                      "                    minimum: 0\r",
+                      "                }\r",
+                      "            },\r",
+                      "            additionalProperties: false\r",
+                      "        }\r",
+                      "    };\r",
+                      "\r",
+                      "    pm.response.to.have.jsonSchema(schema);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BaseUrl}}/Books",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "Books"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "BookById",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Tempo de resposta\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(35);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Contrato da resposta está correto\", function () {\r",
+                      "   \r",
+                      "        pm.expect(response.titulo).to.eql(pm.environment.get(\"titulo\"));\r",
+                      "        pm.expect(response.autor).to.eql(pm.environment.get(\"nome\"));\r",
+                      "        pm.expect(response.preco).to.eql(parseFloat(pm.environment.get(\"preço\")));\r",
+                      "   \r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Validar contrato da resposta\", function () {\r",
+                      "    const schema = {\r",
+                      "    type: \"object\",\r",
+                      "    required: [\"id\", \"titulo\", \"autor\", \"preco\"],\r",
+                      "    properties: {\r",
+                      "        id: {\r",
+                      "            type: \"integer\"\r",
+                      "        },\r",
+                      "        titulo: {\r",
+                      "            type: \"string\"\r",
+                      "        },\r",
+                      "        autor: {\r",
+                      "            type: \"string\"\r",
+                      "        },\r",
+                      "        preco: {\r",
+                      "            type: \"number\"\r",
+                      "        }\r",
+                      "    }\r",
+                      "};\r",
+                      "\r",
+                      "    pm.response.to.have.jsonSchema(schema);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BaseUrl}}/Books/:id",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "Books",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{bookId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Book",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Tempo de resposta menor que 2 segundos\", () => {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(30);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Content-Type é JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "        .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Validar schema da resposta\", () => {\r",
+                      "    const schema = {\r",
+                      "        type: \"object\",\r",
+                      "        required: [\"id\", \"titulo\", \"autor\", \"preco\"],\r",
+                      "        properties: {\r",
+                      "            id: { type: \"integer\" },\r",
+                      "            titulo: { type: \"string\" },\r",
+                      "            autor: { type: \"string\" },\r",
+                      "            preco: { type: \"number\" }\r",
+                      "        }\r",
+                      "    };\r",
+                      "\r",
+                      "    pm.response.to.have.jsonSchema(schema);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Título atualizado corretamente\", () => {\r",
+                      "    pm.expect(response.titulo).to.eql(\"Clean Cod2e\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Autor atualizado corretamente\", () => {\r",
+                      "    pm.expect(response.autor).to.eql(\"Robert Mar4tin\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Preço atualizado corretamente\", () => {\r",
+                      "    pm.expect(response.preco).to.eql(100);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"titulo\": \"Clean Cod2e\",\r\n  \"autor\": \"Robert Mar4tin\",\r\n  \"preco\": 100\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8080/Books/:id",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "Books",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{bookId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Book",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 204\", () => {\r",
+                      "    pm.response.to.have.status(204);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Resposta vazia\", () => {\r",
+                      "    pm.expect(pm.response.text()).to.eql(\"\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/Books/:id",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "Books",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{bookId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "bookId",
+      "value": ""
     }
   ]
 }
